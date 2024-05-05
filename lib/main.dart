@@ -1,7 +1,6 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Voice',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const SpeechScreen(),
@@ -33,11 +32,17 @@ class _SpeechScreenState extends State<SpeechScreen> {
   SpeechToText speechToText = SpeechToText();
   var isListening = false;
 
-  // String _text = 'Press the button and start speaking';
   List item = [
     1,
     0,
+    2,
+    3,
+    2,
+    2,
+    2,
     0,
+    3,
+    2,
     0,
     0,
     0,
@@ -45,19 +50,37 @@ class _SpeechScreenState extends State<SpeechScreen> {
     0,
     0,
     0,
+    2,
+    3,
+    2,
+    2,
+    2,
+    2,
     0,
+    2,
     0,
+    2,
     0,
     0,
     0,
     0,
     0,
     0,
+    2,
     0,
     0,
     0,
+    2,
+    3,
+    2,
+    2,
+    2,
+    2,
+    2,
     0,
     0,
+    3,
+    2,
     0,
     0,
     0,
@@ -65,7 +88,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
     0,
     0,
     0,
+    2,
+    2,
+    2,
     0,
+    2,
+    2,
+    2,
+    2,
     0,
     0,
     0,
@@ -75,56 +105,24 @@ class _SpeechScreenState extends State<SpeechScreen> {
     0,
     0,
     0,
+    2,
     0,
+    2,
+    3,
+    2,
+    2,
+    2,
     0,
+    2,
+    3,
     0,
+    3,
+    2,
+    2,
+    2,
+    3,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    4
   ];
 
   @override
@@ -134,18 +132,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   }
 
   void checkMicrophoneAvailability() async {
-    bool available = await speechToText.initialize();
-    if (available) {
-      setState(() {
-        if (kDebugMode) {
-          print('Microphone available: $available');
-        }
-      });
-    } else {
-      if (kDebugMode) {
-        print("The user has denied the use of speech recognition.");
-      }
-    }
+    await speechToText.initialize();
   }
 
   @override
@@ -173,13 +160,30 @@ class _SpeechScreenState extends State<SpeechScreen> {
             crossAxisCount: 9,
             children: List.generate(item.length, (index) {
               return Card(
-                color: Colors.black12,
+                color: item[index] == 2
+                    ? Colors.orange
+                    : item[index] == 3
+                        ? Colors.yellow.shade100
+                        : item[index] == 4
+                            ? Colors.green.shade300
+                            : Colors.white30,
                 child: item[index] == 1
                     ? const Icon(
                         Icons.person,
-                        color: Colors.white,
+                        color: Colors.red,
                       )
-                    : const SizedBox(),
+                    : item[index] == 3
+                        ? Icon(
+                            Icons.card_travel_sharp,
+                            color: Colors.blue.shade400,
+                          )
+                        : item[index] == 4
+                            ? Icon(
+                                Icons.bungalow_outlined,
+                                color: Colors.red.shade300,
+                                size: 50,
+                              )
+                            : const SizedBox(),
               );
             }),
           ),
@@ -189,13 +193,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void update(int move) {
     var index = item.indexOf(1);
     item[index] = 0;
-    if (index % 9 == 0 && move == -1) {
-      move = 0;
-    } else if (index % 9 == 8 && move == 1) {
-      move = 0;
-    } else if (index ~/ 9 == 0 && move == -9) {
-      move = 0;
-    } else if (index >= 81 && move == 9) {
+    if ((index % 9 == 0 && move == -1) ||
+        (index % 9 == 8 && move == 1) ||
+        (index ~/ 9 == 0 && move == -9) ||
+        (index >= 81 && move == 9)) {
       move = 0;
     }
     if (index + move >= 0 && index + move <= 90) {
@@ -209,39 +210,32 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   void spliter(String text) {
     String split = text.split(" ")[0].toLowerCase();
-    int move = 0;
-    if (split == "up") {
-      move = -9;
+    if (split == "top") {
+      update(-9);
     }
     if (split == "down") {
-      move = 9;
+      update(9);
     }
     if (split == "left") {
-      move = -1;
+      update(-1);
     }
     if (split == "right") {
-      move = 1;
+      update(1);
     }
-    update(move);
   }
 
   void _listen() async {
     if (!isListening) {
-      // var local = await speechToText.locales();
-      // for (var i in local) {
-      //   print("local name: ${i.name}, local id: ${i.localeId}");
-      // }
       var available = await speechToText.initialize();
       if (available) {
         setState(() {
           isListening = true;
         });
         speechToText.listen(
-            // localeId: local[].localeId,
+            localeId: 'en_US',
             onResult: (result) {
-          print(result.recognizedWords);
-          spliter(result.recognizedWords);
-        });
+              spliter(result.recognizedWords);
+            });
       }
     } else {
       setState(() {
