@@ -166,7 +166,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
                         ? Colors.yellow.shade100
                         : item[index] == 4
                             ? Colors.green.shade300
-                            : Colors.white30,
+                            : item[index] == 5
+                                ? Colors.pink.shade300
+                                : Colors.white30,
                 child: item[index] == 1
                     ? const Icon(
                         Icons.person,
@@ -191,19 +193,45 @@ class _SpeechScreenState extends State<SpeechScreen> {
   }
 
   void update(int move) {
-    var index = item.indexOf(1);
-    item[index] = 0;
-    if ((index % 9 == 0 && move == -1) ||
-        (index % 9 == 8 && move == 1) ||
-        (index ~/ 9 == 0 && move == -9) ||
-        (index >= 81 && move == 9)) {
+    var index1 = item.indexOf(1);
+    item[index1] = 0;
+    if ((index1 % 9 == 0 && move == -1) ||
+        (index1 % 9 == 8 && move == 1) ||
+        (index1 ~/ 9 == 0 && move == -9) ||
+        (index1 >= 81 && move == 9)) {
       move = 0;
     }
-    if (index + move >= 0 && index + move <= 90) {
+    if (index1 + move >= 0 && index1 + move <= 90 && item[index1 + move] != 2) {
+      if (item[index1 + move] == 3) {
+        item[index1 + move] = 5;
+        move = 0;
+      }
+      if (item[index1 + move] == 4) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                backgroundColor: Colors.orange.shade300,
+                child: Column(
+                  children: [
+                    const Center(
+                      child: Text("mission complate."),
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.pop(context);
+                        },
+                        child: Text("ok"))
+                  ],
+                ),
+              );
+            });
+      }
+      speechToText.stop();
       setState(() {
-        item[index + move] = 1;
+        item[index1 + move] = 1;
         isListening = false;
-        speechToText.stop();
       });
     }
   }
